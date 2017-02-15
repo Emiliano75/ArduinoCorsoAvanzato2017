@@ -1,81 +1,62 @@
 /*
+ *********************Arduino Source File Header**************************
+__file_name__ = tag_reader.ino
+__description__="sketch per la lettura di tag RFID MIFARE Classic  basato sullo scanner RFID-RC522"
+__author__ = "Stefano Baldacci"
+__copyright__ = "Informazioni di Copyright"
+__license__ = "GPL"
+__email__ = "stefano.baldacci@gmail.com"
+__STATUS__ = "Development[x]";"Test[]";"Production]";
+__branch__= Master (SHA1) 
+__History__: (repeat the following line as many times as applicable)
+__version__ = "1.0 start development"
+***************************************************************************
+*/
 
- * --------------------------------------------------------------------------------------------------------------------
-
- * Example sketch/program showing how to read new NUID from a PICC to serial.
-
- * --------------------------------------------------------------------------------------------------------------------
-
- * This is a MFRC522 library example; for further details and other examples see: https://github.com/miguelbalboa/rfid
-
- * 
-
- * Example sketch/program showing how to the read data from a PICC (that is: a RFID Tag or Card) using a MFRC522 based RFID
-
- * Reader on the Arduino SPI interface.
-
- * 
-
- * When the Arduino and the MFRC522 module are connected (see the pin layout below), load this sketch into Arduino IDE
-
- * then verify/compile and upload it. To see the output: use Tools, Serial Monitor of the IDE (hit Ctrl+Shft+M). When
-
- * you present a PICC (that is: a RFID Tag or Card) at reading distance of the MFRC522 Reader/PCD, the serial output
-
- * will show the type, and the NUID if a new card has been detected. Note: you may see "Timeout in communication" messages
-
- * when removing the PICC from reading distance too early.
-
- * 
-
- * @license Released into the public domain.
-
- * 
-
- * Typical pin layout used:
-
- * -----------------------------------------------------------------------------------------
-
- *             MFRC522      Arduino       Arduino   Arduino    Arduino          Arduino
-
- *             Reader/PCD   Uno/101       Mega      Nano v3    Leonardo/Micro   Pro Micro
-
- * Signal      Pin          Pin           Pin       Pin        Pin              Pin
-
- * -----------------------------------------------------------------------------------------
-
- * RST/Reset   RST          9             5         D9         RESET/ICSP-5     RST
-
- * SPI SS      SDA(SS)      10            53        D10        10               10
-
- * SPI MOSI    MOSI         11 / ICSP-4   51        D11        ICSP-4           16
-
- * SPI MISO    MISO         12 / ICSP-1   50        D12        ICSP-1           14
-
- * SPI SCK     SCK          13 / ICSP-3   52        D13        ICSP-3           15
-
+/*
+ * Collegamenti Arduino<->RFID Tag Reader
+ * --------------------------------------
+ *             MFRC522      Arduino
+ *             Reader/PCD   Uno R3
+ * Signal      Pin          Pin
+ * --------------------------------------
+ * RST/Reset   RST          9    
+ * SPI SS      SDA(SS)      10       
+ * SPI MOSI    MOSI         11 
+ * SPI MISO    MISO         12  
+ * SPI SCK     SCK          13 
+ * --------------------------------------
  */
 
+#define DEBUG
 
-
+//libreria per collegamento su BUS SPI
 #include <SPI.h>
-
+//libreria per collegamento con Scanner RFID
 #include <MFRC522.h>
 
-
-
+// Pin SDA(SS)
 #define SS_PIN 10
-
+// Pin RST
 #define RST_PIN 9
 
+#define GREEN_LED 5 // linea I/O da attivare quando un tag è riconosciuto
+#define RED_LED 6 // linea I/O da attivare quando un tag non è riconosciuto
+
+// dimensione del vettore che contiene i codici delle TAG abilitate
 #define WLsize 4
 
+//vettore  che contiene i codici delle TAG abilitate
 unsigned long whiteList[WLsize]={3320721658L,52796406L,0,0};  // RFID TAGS abilitati [unsigned long] 
-unsigned long currentID=0L;
+//valore del TAG letto dallo scanner
+unsigned long currentID=0L; 
+// Flag di abilitazione (TAG riconosciuto tra quelli abilitati)
 bool ACK=false;
 
-MFRC522 rfid(SS_PIN, RST_PIN); // Instance of the class
+// Inizializzo un oggetto di tipo MRFC522
+MFRC522 rfid(SS_PIN, RST_PIN); 
 
+//prototipi funzione helper per stampa valori ID dei TAG
 void printHex(byte *buffer, byte bufferSize);
 void printDec(byte *buffer, byte bufferSize);
 
@@ -83,12 +64,12 @@ void printDec(byte *buffer, byte bufferSize);
 
 void setup() { 
 
+  // Inizializzo porta seriale
   Serial.begin(115200);
-
+  // inizilizzo BUS SPI
   SPI.begin(); // Init SPI bus
-
-  rfid.PCD_Init(); // Init MFRC522 
-
+  // inizializzo Scanner RFID
+  rfid.PCD_Init(); 
 
   Serial.println(F("MIFARE Classic RFID TAG Scanner."));
   Serial.println(F("Avvicinare un TAG RFID allo scanner"));
@@ -98,19 +79,18 @@ void setup() {
 
 void loop() {
 
-  // Look for new cards
+  // Controllo se un TAG è stata rilevata
+  if ( ! rfid.PICC_IsNewCardPresent()) return; // se no salto tutto il loop e torno all'inizio
 
-  if ( ! rfid.PICC_IsNewCardPresent())return;
+  // Controllo se i codici identificativi del TAG sono stati letti
+  if ( ! rfid.PICC_ReadCardSerial()) return; // se no salto tutto il loop e torno all'inizio 
 
-  // Verify if the NUID has been read
-
-  if ( ! rfid.PICC_ReadCardSerial()) return;
-
-
-// leggo il TAG ID in una singola variabile unsigned long
+// IL TAG ID è costituito da 4 Bytes
+// copio il TAG ID in una singola variabile unsigned long
   memcpy(&currentID,rfid.uid.uidByte, 4);
 
-  // stampo il TAG ID in HEX,BCD e DEC
+  #ifdef DEBUG
+  // stampo il TAG ID in HEX,DEC e LONG
   Serial.print(F("TAG ID = "));
   printHex(rfid.uid.uidByte, rfid.uid.size);
   Serial.print("(HEX Bytes) -");
@@ -118,40 +98,43 @@ void loop() {
   Serial.print("(DEC Bytes) - ");
   Serial.print(currentID,DEC );
   Serial.println("(LONG)");
-
+  #endif
+  
   //controllo se il TAG ID è tra quelli abilitati
     for (int j=0;j<WLsize;j++) {
       if(currentID==whiteList[j]){
         ACK=true;
-        break;
+        break; // esco dal ciclo appena trovo un codice valido
       }
     }
+  
     
-    if (ACK){
+    if (ACK){ // TAG abilitato
       // TODO abilitazione e attivazione di qualcosa
-      Serial.println(F("Accesso abilitato !"));
       ACK=false;
+      #ifdef DEBUG
+      Serial.println(F("Accesso abilitato !"));
+      #endif
+      
     } 
     else {
-      Serial.println(F("Carta non abilitata. Accesso negato !"));
+       #ifdef DEBUG
+      Serial.println(F("TAG non riconosciuto. Accesso negato !"));
+      #endif
     }
     
+  #ifdef DEBUG
    Serial.println();
    Serial.println(F("Avvicinare un TAG RFID allo scanner"));
-    delay(500);
+  #endif
+   delay(500);
  
 }
 
 
-
-
-
-/**
-
+/*
  * Helper routine to dump a byte array as hex values to Serial. 
-
  */
-
 void printHex(byte *buffer, byte bufferSize) {
 
   for (byte i = 0; i < bufferSize; i++) {
