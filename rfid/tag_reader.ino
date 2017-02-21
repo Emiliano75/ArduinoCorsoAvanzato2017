@@ -1,6 +1,8 @@
+
+
 /*
  *********************Arduino Source File Header**************************
-__file_name__ = tag_reader.ino
+__file_name__ = rfid_readUID
 __description__="sketch per la lettura di tag RFID MIFARE Classic  basato sullo scanner RFID-RC522"
 __author__ = "Stefano Baldacci"
 __copyright__ = "Informazioni di Copyright"
@@ -40,8 +42,8 @@ __version__ = "1.0 start development"
 // Pin RST
 #define RST_PIN 9
 
-#define GREEN_LED 5 // linea I/O da attivare quando un tag è riconosciuto
-#define RED_LED 6 // linea I/O da attivare quando un tag non è riconosciuto
+#define BLU_LED 8 // linea I/O da attivare quando un tag è riconosciuto
+#define RED_LED 7 // linea I/O da attivare quando un tag non è riconosciuto
 
 // dimensione del vettore che contiene i codici delle TAG abilitate
 #define WLsize 4
@@ -70,6 +72,10 @@ void setup() {
   SPI.begin(); // Init SPI bus
   // inizializzo Scanner RFID
   rfid.PCD_Init(); 
+  pinMode(BLU_LED, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
+  digitalWrite(BLU_LED,LOW);
+  digitalWrite(RED_LED,LOW);
 
   Serial.println(F("MIFARE Classic RFID TAG Scanner."));
   Serial.println(F("Avvicinare un TAG RFID allo scanner"));
@@ -111,6 +117,9 @@ void loop() {
     
     if (ACK){ // TAG abilitato
       // TODO abilitazione e attivazione di qualcosa
+      digitalWrite(BLU_LED,HIGH);
+      delay(500);
+      digitalWrite(BLU_LED,LOW);
       ACK=false;
       #ifdef DEBUG
       Serial.println(F("Accesso abilitato !"));
@@ -118,6 +127,9 @@ void loop() {
       
     } 
     else {
+      digitalWrite(RED_LED,HIGH);
+      delay(500);
+      digitalWrite(RED_LED,LOW);
        #ifdef DEBUG
       Serial.println(F("TAG non riconosciuto. Accesso negato !"));
       #endif
@@ -166,3 +178,5 @@ void printDec(byte *buffer, byte bufferSize) {
   }
 
 }
+
+
