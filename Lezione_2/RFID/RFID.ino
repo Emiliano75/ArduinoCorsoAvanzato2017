@@ -1,5 +1,3 @@
-
-
 /*
  *********************Arduino Source File Header**************************
 __file_name__ = rfid_readUID
@@ -162,9 +160,7 @@ void printHex(byte *buffer, byte bufferSize) {
 
 
 /**
-
  * Helper routine to dump a byte array as dec values to Serial.
-
  */
 
 void printDec(byte *buffer, byte bufferSize) {
@@ -178,5 +174,3 @@ void printDec(byte *buffer, byte bufferSize) {
   }
 
 }
-
-
