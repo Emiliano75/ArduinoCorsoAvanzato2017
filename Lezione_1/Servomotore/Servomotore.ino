@@ -11,6 +11,19 @@ __History__: (repeat the following line as many times as applicable)
 __version__ = "1.0"
 ***************************************************************************
 */
+/*
+################################################
+############ Collegamento LCD I2C ##############
+################################################
+#    Display LCD   |   Arduino                 #
+#                                              #   
+#        VCC      >>>    5v                    #
+#        GND      >>>    GND                   #
+#        SCL      >>>    Arduino Pin A5        #
+#        SDA      >>>    Arduino Pin A4        #
+#                                              #
+################################################   
+*/
 
 #define LCD
 #define PinPotenziometro A0
