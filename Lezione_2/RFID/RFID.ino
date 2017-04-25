@@ -1,11 +1,11 @@
 /*
  *********************Arduino Source File Header**************************
-__file_name__ = rfid_readUID
+__file_name__ = rfid.ino
 __description__="sketch per la lettura di tag RFID MIFARE Classic  basato sullo scanner RFID-RC522"
 __author__ = "Stefano Baldacci"
-__copyright__ = "Informazioni di Copyright"
-__license__ = "GPL"
-__email__ = "stefano.baldacci@gmail.com"
+__copyright__ = 
+__license__ = 
+__email__ = 
 __STATUS__ = "Development[x]";"Test[]";"Production]";
 __branch__= Master (SHA1) 
 __History__: (repeat the following line as many times as applicable)
@@ -40,7 +40,7 @@ __version__ = "1.0 start development"
 // Pin RST
 #define RST_PIN 9
 
-#define BLU_LED 8 // linea I/O da attivare quando un tag è riconosciuto
+#define BLU_LED 6 // linea I/O da attivare quando un tag è riconosciuto
 #define RED_LED 7 // linea I/O da attivare quando un tag non è riconosciuto
 
 // dimensione del vettore che contiene i codici delle TAG abilitate
