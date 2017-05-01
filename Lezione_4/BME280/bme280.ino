@@ -33,6 +33,19 @@ Adafruit_BME280 bme; // I2C
 
 unsigned long delayTime;
 
+// Funzione per il calcolo dell'indice di Calore secondo la definizione Summer Simmer Index del 2000
+float SSI() {
+
+  return 0;
+}
+
+
+// funzione per la misura della differenza di altitudine rispetto all'ultimo riferimento preso
+float ResetAltitudine(){
+
+ return0;
+}
+
 void setup() {
     Serial.begin(9600);
     Serial.println(F("BME280 test"));
