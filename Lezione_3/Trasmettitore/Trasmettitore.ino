@@ -15,17 +15,23 @@ void setup() {
   radio.begin();
   radio.setPALevel(RF24_PA_LOW);
   radio.openWritingPipe(indirizzo);
-  Serial.println("Radio accesa");
+  Serial.println("Canale in scrittura attivato");
 }
 
-unsigned int stato = 0;
+bool stato = false;
 
 void loop() {
   stato = !digitalRead(btnPin);
-  if (radio.write(&stato, sizeof(unsigned int))) {
+  if (radio.write(&stato, sizeof(bool))) {
     Serial.println("Invio OK");
+    Serial.print("Dato inviato: ");
+    Serial.println(stato);
   } else {
     Serial.println("Invio FALLITO");
   }
-  delay(200);
+  delay(100);
+}
+
+  }
+  delay(100);
 }

@@ -16,14 +16,14 @@ void setup() {
   radio.setPALevel(RF24_PA_LOW);
   radio.openReadingPipe(1, indirizzo);
   radio.startListening();
-  Serial.println("Radio accesa");
+  Serial.println("Canale in lettura attivato");
 }
 
-unsigned int stato;
+bool stato;
 
 void loop() {
   while (radio.available()) {
-    radio.read(&stato, sizeof(unsigned int));
+    radio.read(&stato, sizeof(bool));
     Serial.print("Dato ricevuto: ");
     Serial.println(stato);
     if (stato) {
