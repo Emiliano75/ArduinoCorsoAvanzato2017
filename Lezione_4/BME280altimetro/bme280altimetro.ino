@@ -40,6 +40,7 @@ LiquidCrystal_I2C lcd(0x3F, 16, 2);
 bool metric = true;
 float refAltitudine=0;
 float altitudine=0.0;
+float seaLevelPressure=1013.25; //millibar
 float pressure=0.0;
 float dislivello=0.0;
 /* ==== END Global Variables ==== */
@@ -82,6 +83,7 @@ void loop() {
       Serial.println("Inserisci l'altitudine in mt.");
       while(!Serial.available());
       altitudine=Serial.parseFloat();
+      seaLevelPressure=bme.sealevel(altitudine);
       break;
       case 'p':
       Serial.read();
@@ -95,19 +97,27 @@ void loop() {
 
   } 
 
-
+  altitudine=bme.alt(metric,seaLevelPressure*100);
  
   if (!digitalRead(RESET_BUTTON)){
-  refAltitudine=bme.alt(metric);
+  refAltitudine=bme.alt(metric,seaLevelPressure*100);
   }
 
-  dislivello=bme.alt(metric)-refAltitudine;
+  dislivello=bme.alt(metric,seaLevelPressure*100)-refAltitudine;
   Serial.print("Altitudine");
-  Serial.println(bme.alt(metric));
-
+  Serial.println(altitudine);
+  lcd.setCursor(0, 0); // Sposto il cursore nella prima colonna, prima riga
+  lcd.print("Altitudine=");   // Stampo il messaggio
+  lcd.print(altitudine); 
+  lcd.print("mt");
+  
   Serial.print("Dislivello");
   Serial.println(dislivello);
-
-   delay(500);
+  lcd.setCursor(0, 1); // Sposto il cursore nella prima colonna, prima riga
+  lcd.print("Dislivello");   // Stampo il messaggio
+  lcd.print(dislivello); 
+  lcd.print("mt");
+  delay(500);
 }
+
 
