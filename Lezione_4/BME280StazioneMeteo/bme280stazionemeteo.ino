@@ -1,7 +1,8 @@
 /*
  *********************Arduino Source File Header**************************
 __file_name__ = bme280stazionemeteo.ino
-__description__="sketch per la lettura del sensore BME280 e visualizzazione su display LCD"
+__description__="sketch per acquisizione dati del sensore BME280 (temperatura, umidità e pressione e DewPoint )
+                e visualizzazione su display LCD"
 __author__ = "Stefano Baldacci"
 __copyright__ = 
 __license__ = 
@@ -9,7 +10,7 @@ __email__ =
 __STATUS__ = "Development[x]";"Test[]";"Production]";
 __branch__= Master (SHA1) 
 __History__: (repeat the following line as many times as applicable)
-__version__ = "1.0 start development"
+__version__ = "1.0 start development" 11 Maggio 2017
 ***************************************************************************
 */
 
@@ -18,7 +19,7 @@ Tabella Connessioni
 BME280              ->  Arduino
 -------------------------------
 Vin (Voltage In)    ->  3.3V
-Gnd (Ground)        ->  Gnd
+Gnd (Ground)        ->  GND
 SDA (Serial Data)   ->  A4 on Uno/Pro-Mini, 20 on Mega2560/Due, 2 Leonardo/Pro-Micro
 SCK (Serial Clock)  ->  A5 on Uno/Pro-Mini, 21 on Mega2560/Due, 3 Leonardo/Pro-Micro
  */
@@ -72,6 +73,9 @@ float F2C(float tempC){
 
 
 // funzione per il calcolo del disagio termico espresso secondo il Summer Simmer Index.
+// parametri: float tempC -> temperatura in °C
+//            float rh umidità relativa in %
+// Return:    SSI in °C
 float Calc_SSI(float tempC, float rh){
 
 float SSI=0;
@@ -140,28 +144,31 @@ void loop() {
   Serial.print("SSI=");
   Serial.println(SSI,1);
   
-  //stampo su LCD
-  lcd.setCursor(0, 0); // Sposto il cursore nella prima colonna, prima riga
-  lcd.print("T=");   // Stampo il messaggio
-  lcd.print(temp,1);   // Stampo il messaggio
-  lcd.print((char)223);   // Stampo il carattete °
+  //visualizzo su LCD
 
-  lcd.setCursor(7, 0); // Sposto il cursore nella nona colonna, prima riga
-  lcd.print("SSI=");   // Stampo il messaggio
-  lcd.print(SSI,1);   // Stampo il messaggio
-  lcd.print((char)223);   // Stampo il carattete °
+  // Sposto il cursore nella prima colonna, prima riga
+  lcd.setCursor(0, 0); 
+  lcd.print("T=");   
+  lcd.print(temp,1);   
+  lcd.print((char)223);   
 
-  lcd.setCursor(0, 1); // Sposto il cursore nella nona colonna, prima riga
-  lcd.print("RH=");   // Stampo il messaggio
-  lcd.print(int(hum));   // Stampo il messaggio
+// Sposto il cursore nella ottava colonna, prima riga
+  lcd.setCursor(7, 0); 
+  lcd.print("SSI=");   
+  lcd.print(SSI,1);   
+  lcd.print((char)223);   
+
+// Sposto il cursore nella prima colonna, seconda riga
+  lcd.setCursor(0, 1); 
+  lcd.print("RH=");   
+  lcd.print(int(hum)); 
   lcd.print("%");   
 
-  lcd.setCursor(6, 1); // Sposto il cursore nella nona colonna, prima riga
-  lcd.print("P=");   // Stampo il messaggio
-  lcd.print(int(pres*1000));   // Stampo il messaggio
+// Sposto il cursore nella settima colonna, seconda riga
+  lcd.setCursor(6, 1); 
+  lcd.print("P=");   
+  lcd.print(int(pres*1000));   
   lcd.print("mbar"); 
 
-
-  
-   delay(1000);
+  delay(1000);
 }
