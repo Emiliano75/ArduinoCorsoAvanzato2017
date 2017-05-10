@@ -1,34 +1,26 @@
 /*
-BME280 I2C Test.ino
-This code shows how to record data from the BME280 environmental sensor
-using I2C interface. This file is an example file, part of the Arduino
-BME280 library.
-Copyright (C) 2016  Tyler Glenn
+ *********************Arduino Source File Header**************************
+__file_name__ = bme280stazionemeteo.ino
+__description__="sketch per la lettura del sensore BME280 e visualizzazione su display LCD"
+__author__ = "Stefano Baldacci"
+__copyright__ = 
+__license__ = 
+__email__ = 
+__STATUS__ = "Development[x]";"Test[]";"Production]";
+__branch__= Master (SHA1) 
+__History__: (repeat the following line as many times as applicable)
+__version__ = "1.0 start development"
+***************************************************************************
+*/
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Written: Dec 30 2015.
-Last Updated: Sep 19 2016.
-
-Connecting the BME280 Sensor:
-Sensor              ->  Board
------------------------------
+/*
+Tabella Connessioni
+BME280              ->  Arduino
+-------------------------------
 Vin (Voltage In)    ->  3.3V
 Gnd (Ground)        ->  Gnd
 SDA (Serial Data)   ->  A4 on Uno/Pro-Mini, 20 on Mega2560/Due, 2 Leonardo/Pro-Micro
 SCK (Serial Clock)  ->  A5 on Uno/Pro-Mini, 21 on Mega2560/Due, 3 Leonardo/Pro-Micro
-
  */
 
 /* ==== Includes ==== */
@@ -42,27 +34,44 @@ SCK (Serial Clock)  ->  A5 on Uno/Pro-Mini, 21 on Mega2560/Due, 3 Leonardo/Pro-M
 /* ==== END Defines ==== */
 
 /* ==== Global Variables ==== */
-BME280I2C bme;                   // Default : forced mode, standby time = 1000 ms
-                              // Oversampling = pressure ×1, temperature ×1, humidity ×1, filter off,
-                              //definisco oggetto lcd del tipo LiquidCrystal_I2C
+
+// definisco oggetto BME280I2C con settaggi di default adatti ad un uso tipo Meteo Station
+// Default : forced mode, standby time = 1000 ms
+// Oversampling = pressure ×1, temperature ×1, humidity ×1, filter off,
+
+
+BME280I2C bme;                   
+                                 
+ //definisco oggetto lcd del tipo LiquidCrystal_I2C all'indirizzo 0x3F
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 
+// flag che determina l'uso di unità di misura metriche o imperiali
 bool metric = true;
+
+// variabili per temperatura, pressione, umidità, DewPoint, Indice di Disagio Termico
 float temp(0), hum(0), pres(0),dewPoint(0),SSI(0);
+
+// pressione espressa in mbar. 1 mbar = 100 hPa
+// unit: B000 = Pa, B001 = hPa, B010 = Hg, B011 = atm, B100 = bar, B101 = torr, B110 = N/m^2, B111 = psi
+
 uint8_t pressureUnit = 0x4;
+
 /* ==== END Global Variables ==== */
 
 
+// funzione per la conevrsione da gradi Centigradi a gradi Fahrenheit
 float C2F(float tempC){
-
   return (9.0/5.0)*tempC +32;
 }
 
-float F2C(float tempC){
 
+// funzione per la conevrsione da gradi Fahrenheit a gradi Centigradi  
+float F2C(float tempC){
   return (tempC-32)*5.0/9.0;
 }
 
+
+// funzione per il calcolo del disagio termico espresso secondo il Summer Simmer Index.
 float Calc_SSI(float tempC, float rh){
 
 float SSI=0;
@@ -83,18 +92,23 @@ return SSI;
 /* ==== Setup ==== */
 void setup() {
 
-  lcd.begin(); 
-  delay(1000);
+  //inizializzo porta seriale
   Serial.begin(SERIAL_BAUD);
-  while(!Serial) {} // Wait
+  
+  //inizializzo sensore BME280
   while(!bme.begin()){
     Serial.println("Could not find BME280 sensor!");
   }
 
+  // inizializzo modulo LCD I2C
+  lcd.begin(); 
   lcd.backlight();
-  lcd.setCursor(0, 0); // Sposto il cursore nella prima colonna, prima riga
-  lcd.print("  Gulli BME280 ");   // Stampo il messaggio
-  lcd.setCursor(0,1);
+  
+  // Sposto il cursore nella prima colonna, prima riga
+  lcd.setCursor(0, 0); 
+  lcd.print("  Gulli BME280 ");   
+  // Sposto il cursore nella prima colonna, seconda riga
+  lcd.setCursor(0,1); 
   lcd.print(" Meteo Station  ");
   delay(3000); 
   lcd.clear();
@@ -104,8 +118,9 @@ void setup() {
 /* ==== Loop ==== */
 void loop() {
 
-   // unit: B000 = Pa, B001 = hPa, B010 = Hg, B011 = atm, B100 = bar, B101 = torr, B110 = N/m^2, B111 = psi
-   // Parameters: (float& pressure, float& temp, float& humidity, bool celsius = false, uint8_t pressureUnit = 0x0)
+   //leggo dal sensoreBME280 
+  
+  // Parameters: (float& pressure, float& temp, float& humidity, bool celsius = false, uint8_t pressureUnit = 0x0)
    bme.read(pres, temp, hum, metric, pressureUnit);      
    dewPoint = bme.dew(metric);
    SSI=Calc_SSI(temp, hum);
