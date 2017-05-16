@@ -24,6 +24,17 @@ IN 4              |      Digital Pin 5
 GND(-)            |      GND
 VCC(+) (5-12V)    |      5 Volt
 ----------------------------------------
+
+           *****************
+           | Step sequence |
+           *****************
+          
+           A+ A- B+ B- | Coil
+           ------------------
+           1  0  0  0  Step 1
+           0  1  0  0  Step 2
+           0  0  1  0  Step 3
+           0  0  0  1  Step 4
 */
 
 #define STEP_FOR_REVOLUTION 515
