@@ -10,6 +10,31 @@ __status__ = "Development[]";"Test[]";"Production[X]";
 __History__: (repeat the following line as many times as applicable)
 __version__ = "1.0"
 ***************************************************************************
+             
+             Collegamenti
+  ******************************** 
+  | Stepper_motor => Arduino UNO |
+  ********************************
+Stepper PCB       |      Arduino UNO
+---------------------------------------
+IN 1              |      Digital Pin 2
+IN 2              |      Digital Pin 3
+IN 3              |      Digital Pin 4
+IN 4              |      Digital Pin 5
+GND(-)            |      GND
+VCC(+) (5-12V)    |      5 Volt
+----------------------------------------
+
+           *****************
+           | Step sequence |
+           *****************
+          
+           A+ A- B+ B- | Coil
+           ------------------
+           1  0  0  0  Step 1
+           0  1  0  0  Step 2
+           0  0  1  0  Step 3
+           0  0  0  1  Step 4
 */
 
 #define STEP_FOR_REVOLUTION 515
