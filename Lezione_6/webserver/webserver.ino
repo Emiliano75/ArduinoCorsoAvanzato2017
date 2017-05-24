@@ -30,6 +30,7 @@ __version__ = "1.0 start development" 25 Maggio 2017
 #define TSample 1000
 
 bool LED_Status=false;
+bool SD_Card_Status=false;
 float Vin=0.0f;
 unsigned long  time =0;
 
@@ -169,17 +170,19 @@ void setup()
 // inizializzo la porta seriale per eventuale debug
 Serial.begin(9600);
 
-// inizializzo la SD Card 
- Serial.print("Initializing SD card...");
+ 
 
  #ifdef FILENAME
-  // see if the card is present and can be initialized:
-  if (!SD.begin(chipSelect)) {
-    Serial.println("Card failed, or not present");
-    // don't do anything more:
-    return;
+ // inizializzo la SD Card 
+  Serial.print("Inizializzazione SD card...");
+  if (SD.begin(SD_CARD_CS)) {
+	Serial.println("SD card inizializzata.");
+	SD_Card_Status=true;
+  } else {
+	Serial.println("SD CARD NON inizializzata o non presente.");
+	Serial.println("Il programma continua senza uso delle SD Card");
+   SD_Card_Status=false;
   }
-  Serial.println("card initialized.");
   #endif
   
   
@@ -220,20 +223,23 @@ webserver.processConnection();
 		  char  vinstring[6];
 		  dtostrf(Vin,4,2,vinstring); // trasformo un float in una stringa
 		  s1= millis() + "\t" +  String(vinstring);
+		  // stampo anche su porta seriale
+		  Serial.println(s1);
 		
-		 File dataFile = SD.open(FILENAME, FILE_WRITE);
-
-		  // scrivo nel file
-		  if (dataFile) {
+		// se la SD card è presente e funziona salvo i dati nel file
+		if (SD_Card_Status) {
+			File dataFile = SD.open(FILENAME, FILE_WRITE);
+			// scrivo nel file
+			if (dataFile) {
 			dataFile.println(s1);
 			dataFile.close();
-			// stampo anche su porta seriale
-			Serial.println(s1);
-		  }
-		  // stampo errore se il file non è aperto
-		  else {
+			}
+			// stampo errore se il file non è aperto
+			else {
 			Serial.println("error opening data file");
-		  }
+			}
+		}
+		
 		time=millis();
 	}
 #endif
