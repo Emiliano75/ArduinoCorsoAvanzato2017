@@ -162,15 +162,11 @@ if (type == WebServer::GET) {
 }
 
 
-
+//################################## setup() #################################
 void setup()
 {
-
-
 // inizializzo la porta seriale per eventuale debug
 Serial.begin(9600);
-
- 
 
  #ifdef FILENAME
  // inizializzo la SD Card 
@@ -184,8 +180,6 @@ Serial.begin(9600);
    SD_Card_Status=false;
   }
   #endif
-  
-  
   
 //inizializzo l'ethernet shield con il MAC e IP address
 Ethernet.begin(mac_Add, ip_Add);
@@ -205,10 +199,13 @@ webserver.begin();
 pinMode(LED, OUTPUT);
 // spengo il LED
 digitalWrite(LED, LED_Status);
-
 }
+//################################## setup() #################################
 
 
+
+
+//################################## loop() ##################################
 void loop()
 {
 //elabora costantemente tutte le richieste provenienti da un client connesso in rete locale
@@ -243,6 +240,6 @@ webserver.processConnection();
 		time=millis();
 	}
 #endif
-
+//################################## loop() ##################################
 
 }
