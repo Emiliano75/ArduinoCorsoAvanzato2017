@@ -18,22 +18,19 @@ __version__ = "1.0 start development" 25 Maggio 2017
 //libreria webduino
 #include <WebServer.h>      
 
-
-#define FILENAME "datalog.txt"
+//#define FILENAME "datalog.txt"
 #define LED 5
 #define AI 0 // analog input
 #define URL_COMMAND_ON "ON"
 #define URL_COMMAND_OFF "OFF"
 #define LINK_TEXT_ON "ACCENDI LED"
 #define LINK_TEXT_OFF "SPEGNI LED"
-#define SD_CARD_CS 4
-#define TSample 1000
+
 
 bool LED_Status=false;
-bool SD_Card_Status=false;
 float Vin=0.0f;
 unsigned long  time =0;
-
+String s1="";
 
 // Indirizzo MAC della scheda. Deve essere unico tra tutte le schede collegate nella stessa rete.
 // Selezionare un indirizzo diverso dagli altri
@@ -71,7 +68,6 @@ String MakeLinkURL(byte* ip_Add, char* command,  char* msg){
   for(byte i=0;i<4;i++){
     linkURL+=ip_Add[i];
     if(i<3)linkURL+=".";
-    Serial.println(linkURL.c_str());
   }
   
   // completo la stringa con comando e testo link
@@ -92,8 +88,8 @@ WebServer webserver("", 80);
 //funzione Start che viene chiamata per gestire una richeista quando un client
 //si collega al WebServer
 void Start(WebServer &server, WebServer::ConnectionType type, char *url_param, bool param_complete) {
-  
-  String s1="";
+   
+
   
 //restituisce al browser l'intestazione http 200 OK
 server.httpSuccess();
@@ -168,18 +164,6 @@ void setup()
 // inizializzo la porta seriale per eventuale debug
 Serial.begin(9600);
 
- #ifdef FILENAME
- // inizializzo la SD Card 
-  Serial.print("Inizializzazione SD card...");
-  if (SD.begin(SD_CARD_CS)) {
-	Serial.println("SD card inizializzata.");
-	SD_Card_Status=true;
-  } else {
-	Serial.println("SD CARD NON inizializzata o non presente.");
-	Serial.println("Il programma continua senza uso delle SD Card");
-   SD_Card_Status=false;
-  }
-  #endif
   
 //inizializzo l'ethernet shield con il MAC e IP address
 Ethernet.begin(mac_Add, ip_Add);
@@ -208,38 +192,9 @@ digitalWrite(LED, LED_Status);
 //################################## loop() ##################################
 void loop()
 {
+
 //elabora costantemente tutte le richieste provenienti da un client connesso in rete locale
 webserver.processConnection();
 
-#ifdef FILENAME
-// acquisisco un dato da ingresso analogico e lo salvo su file ad intervalli regolari
-	if(millis()-time>=TSample) {
-		// acquisisci dato e salvalo nel file sulla SD
-		 // Stampo una riga con la lettura del Canale Analogico VIN
-		  Vin=analogRead(AI)*5/1024.0;
-		  char  vinstring[6];
-		  dtostrf(Vin,4,2,vinstring); // trasformo un float in una stringa
-		  s1= millis() + "\t" +  String(vinstring);
-		  // stampo anche su porta seriale
-		  Serial.println(s1);
-		
-		// se la SD card è presente e funziona salvo i dati nel file
-		if (SD_Card_Status) {
-			File dataFile = SD.open(FILENAME, FILE_WRITE);
-			// scrivo nel file
-			if (dataFile) {
-			dataFile.println(s1);
-			dataFile.close();
-			}
-			// stampo errore se il file non è aperto
-			else {
-			Serial.println("error opening data file");
-			}
-		}
-		
-		time=millis();
-	}
-#endif
-//################################## loop() ##################################
-
 }
+//################################## loop() ##################################
